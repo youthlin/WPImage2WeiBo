@@ -102,7 +102,11 @@ class WeiBoUploader
                 $post['pic1'] = '@' . realpath($file);
             }
         } else {
-            $post['b64_data'] = base64_encode(file_get_contents($file));
+            $img = @file_get_contents($file);
+            if (!$img) {
+                throw new WeiBoException('Invalid Url');
+            }
+            $post['b64_data'] = base64_encode($img);
         }
         $cookie = $this->cookie;
         // Curl 提交
@@ -171,7 +175,7 @@ class WeiBoUploader
         ];
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, WeiBoPic::LOGIN_URL);
+        curl_setopt($ch, CURLOPT_URL, WeiBoUploader::LOGIN_URL);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);

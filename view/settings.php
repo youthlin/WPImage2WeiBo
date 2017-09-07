@@ -11,9 +11,6 @@ function lin_weibo_pic_settings()
     if (!is_admin()) {
         return;
     }
-    define(LIN_WB_USERNAME, 'lin_weibo_username');
-    define(LIN_WB_PASSWORD, 'lin_weibo_password');
-    define(LIN_WB_COOKIE, 'lin_weibo_cookie');
     global $wb_uploader;
     $wb_pic_url = '';
     $wb_pic_url2 = '';

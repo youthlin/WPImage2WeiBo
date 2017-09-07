@@ -21,7 +21,7 @@ function lin_weibo_pic_content_img_replace($content)
     $cook = get_option(LIN_WB_COOKIE);
     global $wb_uploader;
     $wb_uploader = \Lin\WeiBoUploader::newInstance($name, $pass, $cook);
-    if ($wb_uploader) {
+    if ($wb_uploader == null) {
         $content .= '<!--' . __('Please set your username and password of WeiBo first.', 'lin_weibo_pic') . '-->';
         return $content;
     }
@@ -48,7 +48,7 @@ function lin_weibo_pic_content_img_replace($content)
         if (!$matches[3]) {
             $url = $_SERVER["REQUEST_SCHEME"] . ':' . $url;
         }
-        return $matches[1] . lin_weibo_pic_content_img_replace($url) . $matches[1] . $matches[6];
+        return $matches[1] . lin_weibo_img_replace($url) . $matches[1] . $matches[6];
     }, $content);
     return $content;
 }
@@ -58,12 +58,31 @@ function lin_weibo_img_replace($url)
     global $wb_uploader, $wpdb, $post;
     $table_name = LIN_WB_TABLE_NAME;
     //检查数据库是否有
-    $data = $wpdb->prepare("SELECT pid FROM $table_name WHERE post_id = ? AND src = ?", $post->ID, $url);
-    var_dump($data);
-    //如果没有则上传
-
-    //替换
-
-    return $url;
+    $data = $wpdb->get_results($wpdb->prepare("SELECT pid FROM $table_name WHERE post_id = %d AND src = %s", $post->ID, $url));
+    $link = $pid = $url;
+    if (!$data || count($data) == 0) {
+        //如果没有则上传
+        try {
+            //todo local file
+            $pid = $wb_uploader->upload($url, false);
+            $link = $wb_uploader->getImageUrl($pid);
+            $in = array(
+                'post_id' => $post->ID,
+                'src' => $url,
+                'pid' => $pid,
+                'create_time' => time()
+            );
+            $success = $wpdb->insert($table_name, $in);
+            if ($success) {
+                echo "<!--[$url][$pid]-->" . PHP_EOL;
+            }
+        } catch (\Lin\WeiBoException $e) {
+            //var_dump($e);
+            echo "<!--ERROR[{$e->getMessage()}][$url]-->" . PHP_EOL;
+        }
+    } else {
+        $pid = $data[0]->pid;
+        $link = $wb_uploader->getImageUrl($pid);
+    }
+    return $link;
 }
-
