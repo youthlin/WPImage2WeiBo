@@ -63,7 +63,7 @@ function lin_weibo_img_replace($url)
     if (!$data || count($data) == 0) {
         //如果没有则上传
         try {
-            //todo local file
+            //todo local file use multipart
             $pid = $wb_uploader->upload($url, false);
             $link = $wb_uploader->getImageUrl($pid);
             $in = array(
