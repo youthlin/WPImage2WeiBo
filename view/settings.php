@@ -1,7 +1,8 @@
 <?php
 // Make sure we don't expose any info if called directly
 if (!function_exists('add_action')) {
-    echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
+    header("HTTP/1.1 404 Not Found");
+    header("Status: 404 Not Found");
     exit;
 }
 // 账号设置
@@ -18,38 +19,35 @@ function lin_weibo_pic_settings()
     $wb_pic_url2 = '';
     ?>
     <div class="wrap">
-        <h2><?php _e('WeiBo Pic Account Settings', 'lin_weibo_pic'); ?></h2>
+        <h2><?php _e('WeiBo Account Settings', 'lin_weibo_pic'); ?></h2>
         <?php
         if ($_POST['update_options'] == 'true') {//若提交了表单，则保存变量
             update_option(LIN_WB_USERNAME, $_POST['username']);
             update_option(LIN_WB_PASSWORD, $_POST['password']);
-            echo '<div id="message" class="updated below-h2"><p>' . __('Saved', 'lin_weibo_pic') . '</p></div>';//保存完毕显示文字提示
-            $wb_uploader = \Lin\WeiBoPic::new_instance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD));
-            update_option('lin_weibo_cookie', $wb_uploader->get_cookie());
+            echo '<div id="message" class="updated below-h2"><p>' . __('Saved', 'lin_weibo_pic') . '</p></div>';
+            $wb_uploader = \Lin\WeiBoUploader::newInstance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD));
+            update_option(LIN_WB_COOKIE, $wb_uploader->getCookie());
         }
         $name = get_option(LIN_WB_USERNAME);
         $pass = get_option(LIN_WB_PASSWORD);
         $cook = get_option(LIN_WB_COOKIE);
-        $wb_uploader = \Lin\WeiBoPic::new_instance($name, $pass, $cook);
+        $wb_uploader = \Lin\WeiBoUploader::newInstance($name, $pass, $cook);
         if ($_POST['url']) {
             $url = $_POST['url'];
             if ($wb_uploader == null) {
                 echo '<div class="error below-h2"><p>' . __('Please set your username and password first.', 'lin_weibo_pic') . '</p></div>';
             } else {
-                $pid = $wb_uploader->upload($url, false);
-                $wb_pic_url = $wb_uploader->getImageUrl($pid);
-
-                if ($wb_uploader->get_error()) {
-                    printf(__('Error: %1$s'), $wb_uploader->get_error());
+                try {
+                    $pid = $wb_uploader->upload($url, false);
+                    $wb_pic_url = $wb_uploader->getImageUrl($pid);
+                } catch (\Lin\WeiBoException $e) {
+                    printf('<div  class="error below-h2"><p>' . __('Error: %1$s', 'lin_weibo_pic') . '</p></div>', $e->getMessage());
                 }
             }
         }
         if ($_FILES['file']) {
             if ($_FILES["file"]["error"] > 0) {
-                printf(
-                    '<div class="error below-h2"><p>' . __('Error: %1$s', 'lin_weibo_pic') . '</p></div>',
-                    $_FILES["file"]["error"]
-                );
+                printf('<div class="error below-h2"><p>' . __('Error: %1$s', 'lin_weibo_pic') . '</p></div>', $_FILES["file"]["error"]);
             } else {
                 printf('<div class="notice below-h2"><p>'
                     . __('Uploaded : %1$s', 'lin_weibo_pic') . "<br />"
@@ -67,14 +65,11 @@ function lin_weibo_pic_settings()
                 echo '<div class="error below-h2"><p>' . __('Please set your username and password first.', 'lin_weibo_pic') . '</p></div>';
             } else {
                 $file = $_FILES['file']['tmp_name'];
-                $pid = $wb_uploader->upload($file);
-                $wb_pic_url2 = $wb_uploader->getImageUrl($pid);
-
-                if ($wb_uploader->get_error()) {
-                    printf(
-                        '<div  class="error below-h2"><p>' . __('Error: %1$s', 'lin_weibo_pic') . '</p></div>',
-                        $wb_uploader->get_error()
-                    );
+                try {
+                    $pid = $wb_uploader->upload($file);
+                    $wb_pic_url2 = $wb_uploader->getImageUrl($pid);
+                } catch (\Lin\WeiBoException $e) {
+                    printf('<div  class="error below-h2"><p>' . __('Error: %1$s', 'lin_weibo_pic') . '</p></div>', $e->getMessage());
                 }
             }
         }
