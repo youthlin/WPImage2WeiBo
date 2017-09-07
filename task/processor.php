@@ -70,7 +70,6 @@ function lin_weibo_img_replace($url)
                 'post_id' => $post->ID,
                 'src' => $url,
                 'pid' => $pid,
-                'create_time' => time()
             );
             $success = $wpdb->insert($table_name, $in);
             if ($success) {
