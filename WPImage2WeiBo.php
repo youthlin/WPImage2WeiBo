@@ -6,7 +6,7 @@ Description: 提取文章图片链接并上传至微博图床，使用微博外�
 Version: 1.0
 Author: youthlin.chen
 Author URI: https://youthlin.chen
-License: GPL2
+License: GPLv2 or later.
 */
 
 // Make sure we don't expose any info if called directly
