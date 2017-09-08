@@ -55,6 +55,18 @@ class WeiBoUploader
      * @see https://github.com/consatan/weibo_image_uploader
      * @param string $pid 微博图床 pid，或者微博图床链接。传递的是链接的话，仅是将链接的尺寸更改为目标尺寸而已。
      * @param int $size 图片尺寸
+     * <pre>
+     * array(
+     * 'large',         //original
+     * 'mw1024',        //max width 1024px
+     * 'mw690',         //max width 690px
+     * 'bmiddle',       //max width 440px
+     * 'small',         //the larger edge is 200px
+     * 'thumb180',      //180px*180px
+     * 'thumbnail',     //the larger edge is 120px
+     * 'square'         //80*80
+     * );
+     * </pre>
      * @param bool $https (true) 是否使用 https 协议
      * @return string 图片链接
      * 当 $pid 既不是 pid 也不是合法的微博图床链接时返回空值
@@ -66,7 +78,9 @@ class WeiBoUploader
         }
         $sizeArr = array('large', 'mw1024', 'mw690', 'bmiddle', 'small', 'thumb180', 'thumbnail', 'square');
         $pid = trim($pid);
-        $size = $sizeArr[$size];
+        if (is_numeric($size)) {
+            $size = $sizeArr[$size];
+        }
         // 传递 pid
         if (preg_match('/^[a-zA-Z0-9]{32}$/', $pid) === 1) {
             return ($https ? 'https://ws' : 'http://ww') . ((crc32($pid) & 3) + 1) . ".sinaimg.cn/" . $size . "/$pid." . ($pid[21] === 'g' ? 'gif' : 'jpg');

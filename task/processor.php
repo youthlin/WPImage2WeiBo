@@ -13,68 +13,80 @@ if (!function_exists('add_action')) {
 }
 
 add_filter('the_content', 'lin_weibo_pic_content_img_replace');
+global $wb_uploader, $processed;
+$wb_uploader = \Lin\WeiBoUploader::newInstance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD), get_option(LIN_WB_COOKIE));
+$processed = array();   //cache same image
 // 处理文章中的图片链接，替换为微博外链
 function lin_weibo_pic_content_img_replace($content)
 {
-    $name = get_option(LIN_WB_USERNAME);
-    $pass = get_option(LIN_WB_PASSWORD);
-    $cook = get_option(LIN_WB_COOKIE);
     global $wb_uploader;
-    $wb_uploader = \Lin\WeiBoUploader::newInstance($name, $pass, $cook);
     if ($wb_uploader == null) {
         $content .= '<!--' . __('Please set your username and password of WeiBo first.', 'lin_weibo_pic') . '-->';
         return $content;
     }
+    $before = get_num_queries();
     /*
-
       #                            用#而不是/ 可以不用对 / 转义
-       ('|\")                    1 属性都是引号括起来的
-       (                         2 整个URL 可能 // 开头
-        (https?:)?               3 协议
+       (                         1 整个URL 可能 // 开头
+        (https?:)?               2 协议
         //                         双斜线
-        (.*?)                    4 路径
+        (.*?)                    3 路径
         .                          后缀名
-        (jpg|jpeg|png|gif|bmp)   5 后缀名
+        (jpg|jpeg|png|gif|bmp)   4 后缀名
        )
-       \1                          引号
-       (\s|/|>)                  6 空白 或 标签结尾
+       ('|"|\s|/|>)?             5 空白 或 标签结尾
       #i                           忽略大小写
 
      */
-    $pattern = '#(\'|\")((https?:)?//(.*?).(jpg|jpeg|png|gif|bmp))\1(\s|/|>)#i';
-    preg_match_all($pattern, $content, $matches);
-    $content = preg_replace_callback($pattern, function ($matches) {
-        $url = $matches[2];
-        if (!$matches[3]) {
-            $url = $_SERVER["REQUEST_SCHEME"] . ':' . $url;
-        }
-        return $matches[1] . lin_weibo_img_replace($url) . $matches[1] . $matches[6];
-    }, $content);
-    return $content;
+    //todo img srcset
+    $pattern = '#((https?:)?//(.*?).(jpg|jpeg|png|gif|bmp))(\'|\"|\s|/|>)?#i';
+    $content = preg_replace_callback($pattern, 'lin_weibo_match_callback', $content);
+    return $content . "<!-- [WPImage2WeiBo queries: " . (get_num_queries() - $before) . '] -->';
+}
+
+function lin_weibo_match_callback($matches)
+{
+    $url = $matches[1];
+    if (!$matches[2]) {
+        $url = $_SERVER["REQUEST_SCHEME"] . ':' . $url;
+    }
+    return lin_weibo_img_replace($url) . $matches[5];
 }
 
 function lin_weibo_img_replace($url)
 {
-    global $wb_uploader, $wpdb, $post;
+    global $wb_uploader, $wpdb, $post, $processed;
+    if ($processed[$url]) { //hit cache
+        return $processed[$url];
+    }
+
     $table_name = LIN_WB_TABLE_NAME;
     //检查数据库是否有
     $data = $wpdb->get_results($wpdb->prepare("SELECT pid FROM $table_name WHERE post_id = %d AND src = %s", $post->ID, $url));
     $link = $pid = $url;
-    if (!$data || count($data) == 0) {
-        //如果没有则上传
+    if (!$data || count($data) == 0) { //如果没有则上传
+        $file = $url;
+        $multifile = false;// whether is local file or not
+        $prefix = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["HTTP_HOST"] . "/";
+        if (0 === strpos($url, $prefix)) { // prefix: https://youthlin.com/
+            $file = substr($url, strlen($prefix));
+            $multifile = true;
+        }
+        $prefix = "//" . $_SERVER["HTTP_HOST"] . "/";
+        if (0 === strpos($url, $prefix)) { // prefix: //youthlin.com/
+            $file = substr($url, strlen($prefix));
+            $multifile = true;
+        }
+
         try {
-            //todo local file use multipart
-            $pid = $wb_uploader->upload($url, false);
+            $pid = $wb_uploader->upload($file, $multifile);
             $link = $wb_uploader->getImageUrl($pid);
             $in = array(
                 'post_id' => $post->ID,
                 'src' => $url,
                 'pid' => $pid,
             );
-            $success = $wpdb->insert($table_name, $in);
-            if ($success) {
-                echo "<!--[$url][$pid]-->" . PHP_EOL;
-            }
+            $wpdb->insert($table_name, $in);
         } catch (\Lin\WeiBoException $e) {
             //var_dump($e);
             echo "<!--ERROR[{$e->getMessage()}][$url]-->" . PHP_EOL;
@@ -83,5 +95,6 @@ function lin_weibo_img_replace($url)
         $pid = $data[0]->pid;
         $link = $wb_uploader->getImageUrl($pid);
     }
+    $processed[$url] = $link;
     return $link;
 }

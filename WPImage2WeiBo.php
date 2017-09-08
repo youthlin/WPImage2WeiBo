@@ -17,46 +17,16 @@ if (!function_exists('add_action')) {
 }
 
 global $wpdb;
-define(LIN_WB_TB_PREFIX, 'weibo_');
-define(LIN_WB_TABLE_NAME, $wpdb->prefix . LIN_WB_TB_PREFIX . 'image');
-define('LinWPWeiBoPic_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define(LIN_WB_USERNAME, 'lin_weibo_username');
-define(LIN_WB_PASSWORD, 'lin_weibo_password');
-define(LIN_WB_COOKIE, 'lin_weibo_cookie');
+define('LIN_WB_TB_PREFIX', 'weibo_');
+define('LIN_WB_TABLE_NAME', $wpdb->prefix . LIN_WB_TB_PREFIX . 'image');
+define('LIN_WB_USERNAME', 'lin_weibo_username');
+define('LIN_WB_PASSWORD', 'lin_weibo_password');
+define('LIN_WB_COOKIE', 'lin_weibo_cookie');
 
-require_once(LinWPWeiBoPic_PLUGIN_DIR . '/exception/WeiBoException.php');
-require_once(LinWPWeiBoPic_PLUGIN_DIR . '/service/WeiBoUploader.php');
-require_once(LinWPWeiBoPic_PLUGIN_DIR . '/view/settings.php');
-require_once(LinWPWeiBoPic_PLUGIN_DIR . '/task/processor.php');
-
-register_activation_hook(__FILE__, 'lin_weibo_pic_on_activation');
-register_deactivation_hook(__FILE__, 'lin_weibo_pic_on_deactivation');
-register_uninstall_hook(__FILE__, 'lin_weibo_pic_on_uninstall');
-
-function lin_weibo_pic_on_activation()
-{
-    global $wpdb;
-    $table_name = LIN_WB_TABLE_NAME;
-    $charset_collate = $wpdb->get_charset_collate();
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name(
-            `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `post_id` bigint(20) unsigned NOT NULL DEFAULT 0,
-            `src` VARCHAR(255) NOT NULL DEFAULT '',
-            `pid` VARCHAR (50) NOT NULL DEFAULT '',
-            `create_time` timestamp NOT NULL DEFAULT NOW(),
-            PRIMARY KEY (`id`),
-            UNIQUE KEY uniq_post_id_src(`post_id`,`src`)
-           )$charset_collate";
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-function lin_weibo_pic_on_deactivation()
-{
-
-}
-
-function lin_weibo_pic_on_uninstall()
-{
-
-}
+define('LIN_WB_MAIN_FILE', __FILE__);
+define('LIN_WB_DIR', plugin_dir_path(__FILE__));
+require_once(LIN_WB_DIR . 'task/lifecycle.php');
+require_once(LIN_WB_DIR . 'exception/WeiBoException.php');
+require_once(LIN_WB_DIR . 'service/WeiBoUploader.php');
+require_once(LIN_WB_DIR . 'view/settings.php');
+require_once(LIN_WB_DIR . 'task/processor.php');
