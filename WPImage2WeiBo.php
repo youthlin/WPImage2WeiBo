@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: WPImage2WeiBo
-Plugin URI: https://youthlin.chen
+Plugin URI: https://youthlin.com
 Description: 提取文章图片链接并上传至微博图床，使用微博外链替换图片链接
 Version: 1.0
 Author: youthlin.chen
-Author URI: https://youthlin.chen
+Author URI: https://youthlin.com
 License: GPLv2 or later.
 */
 
