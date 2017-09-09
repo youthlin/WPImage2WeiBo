@@ -25,32 +25,20 @@ function wp_image_to_weibo_content_img_replace($content)
         return $content;
     }
     $before = get_num_queries();
-    /*
-      #                            用#而不是/ 可以不用对 / 转义
-       (                         1 整个URL 可能 // 开头
-        (https?:)?               2 协议
-        //                         双斜线
-        (.*?)                    3 路径
-        .                          后缀名
-        (jpg|jpeg|png|gif|bmp)   4 后缀名
-       )
-       ('|"|\s|/|>)?             5 空白 或 标签结尾
-      #i                           忽略大小写
-
-     */
-    //todo img srcset
-    $pattern = '#((https?:)?//(.*?).(jpg|jpeg|png|gif|bmp))(\'|\"|\s|/|>)?#i';
+    $pattern = '#(https?:)?//([^\s]*?).(jpg|jpeg|png|gif|bmp)#i';
     $content = preg_replace_callback($pattern, 'wp_image_to_weibo_match_callback', $content);
     return $content . "<!-- [WPImage2WeiBo queries: " . (get_num_queries() - $before) . '] -->';
 }
 
 function wp_image_to_weibo_match_callback($matches)
 {
-    $url = $matches[1];
-    if (!$matches[2]) {
+    // echo $matches[0] . PHP_EOL;
+    $url = $matches[0];
+    if (!$matches[1]) {
         $url = $_SERVER["REQUEST_SCHEME"] . ':' . $url;
     }
-    return wp_image_to_weibo_img_replace($url) . $matches[5];
+    // return $matches[0];
+    return wp_image_to_weibo_img_replace($url);
 }
 
 function wp_image_to_weibo_img_replace($url)
@@ -59,27 +47,24 @@ function wp_image_to_weibo_img_replace($url)
     if ($processed[$url]) { //hit cache
         return $processed[$url];
     }
+    if (strpos($url, ".sinaimg.cn/") > 0) {
+        return $url;
+    }
 
     $table_name = LIN_WB_TABLE_NAME;
     //检查数据库是否有
-    $data = $wpdb->get_results($wpdb->prepare("SELECT pid FROM $table_name WHERE post_id = %d AND src = %s", $post->ID, $url));
+    $data = $wpdb->get_results($wpdb->prepare("SELECT pid FROM $table_name WHERE src = %s", $url));
     $link = $pid = $url;
     if (!$data || count($data) == 0) { //如果没有则上传
         $file = $url;
-        $multifile = false;// whether is local file or not
-        $prefix = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["HTTP_HOST"] . "/";
-        if (0 === strpos($url, $prefix)) { // prefix: https://youthlin.com/
-            $file = substr($url, strlen($prefix));
-            $multifile = true;
+        $home_path = home_url('/');
+        $multipart = false;// whether is local file or not
+        if (0 === strpos($url, $home_path)) {
+            $multipart = true;
+            $file = ABSPATH . substr($file, strlen($home_path));
         }
-        $prefix = "//" . $_SERVER["HTTP_HOST"] . "/";
-        if (0 === strpos($url, $prefix)) { // prefix: //youthlin.com/
-            $file = substr($url, strlen($prefix));
-            $multifile = true;
-        }
-
         try {
-            $pid = $wb_uploader->upload($file, $multifile);
+            $pid = $wb_uploader->upload($file, $multipart);
             $link = $wb_uploader->getImageUrl($pid);
             $in = array(
                 'post_id' => $post->ID,
@@ -88,7 +73,6 @@ function wp_image_to_weibo_img_replace($url)
             );
             $wpdb->insert($table_name, $in);
         } catch (\Lin\WeiBoException $e) {
-            //var_dump($e);
             echo "<!--ERROR[{$e->getMessage()}][$url]-->" . PHP_EOL;
         }
     } else {
