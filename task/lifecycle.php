@@ -12,11 +12,16 @@ if (!function_exists('add_action')) {
     exit;
 }
 
-register_activation_hook(LIN_WB_MAIN_FILE, 'lin_weibo_pic_on_activation');
-register_deactivation_hook(LIN_WB_MAIN_FILE, 'lin_weibo_pic_on_deactivation');
-register_uninstall_hook(LIN_WB_MAIN_FILE, 'lin_weibo_pic_on_uninstall');
+add_action('plugins_loaded', 'wp_image_to_weibo_load_plugin_textdomain');
+function wp_image_to_weibo_load_plugin_textdomain()
+{
+    load_plugin_textdomain('wp-image-to-weibo', FALSE, basename(dirname(LIN_WB_MAIN_FILE)) . '/languages/');
+}
 
-function lin_weibo_pic_on_activation()
+register_activation_hook(LIN_WB_MAIN_FILE, 'wp_image_to_weibo_on_activation');
+register_deactivation_hook(LIN_WB_MAIN_FILE, 'wp_image_to_weibo_on_deactivation');
+register_uninstall_hook(LIN_WB_MAIN_FILE, 'wp_image_to_weibo_on_uninstall');
+function wp_image_to_weibo_on_activation()
 {
     global $wpdb;
     $table_name = LIN_WB_TABLE_NAME;
@@ -34,12 +39,12 @@ function lin_weibo_pic_on_activation()
     dbDelta($sql);
 }
 
-function lin_weibo_pic_on_deactivation()
+function wp_image_to_weibo_on_deactivation()
 {
 
 }
 
-function lin_weibo_pic_on_uninstall()
+function wp_image_to_weibo_on_uninstall()
 {
 
 }

@@ -12,16 +12,16 @@ if (!function_exists('add_action')) {
     exit;
 }
 
-add_filter('the_content', 'lin_weibo_pic_content_img_replace');
+add_filter('the_content', 'wp_image_to_weibo_content_img_replace');
 global $wb_uploader, $processed;
 $wb_uploader = \Lin\WeiBoUploader::newInstance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD), get_option(LIN_WB_COOKIE));
 $processed = array();   //cache same image
 // 处理文章中的图片链接，替换为微博外链
-function lin_weibo_pic_content_img_replace($content)
+function wp_image_to_weibo_content_img_replace($content)
 {
     global $wb_uploader;
     if ($wb_uploader == null) {
-        $content .= '<!--' . __('Please set your username and password of WeiBo first.', 'lin_weibo_pic') . '-->';
+        $content .= '<!--' . __('Please set your username and password of WeiBo first.', 'wp-image-to-weibo') . '-->';
         return $content;
     }
     $before = get_num_queries();
@@ -40,20 +40,20 @@ function lin_weibo_pic_content_img_replace($content)
      */
     //todo img srcset
     $pattern = '#((https?:)?//(.*?).(jpg|jpeg|png|gif|bmp))(\'|\"|\s|/|>)?#i';
-    $content = preg_replace_callback($pattern, 'lin_weibo_match_callback', $content);
+    $content = preg_replace_callback($pattern, 'wp_image_to_weibo_match_callback', $content);
     return $content . "<!-- [WPImage2WeiBo queries: " . (get_num_queries() - $before) . '] -->';
 }
 
-function lin_weibo_match_callback($matches)
+function wp_image_to_weibo_match_callback($matches)
 {
     $url = $matches[1];
     if (!$matches[2]) {
         $url = $_SERVER["REQUEST_SCHEME"] . ':' . $url;
     }
-    return lin_weibo_img_replace($url) . $matches[5];
+    return wp_image_to_weibo_img_replace($url) . $matches[5];
 }
 
-function lin_weibo_img_replace($url)
+function wp_image_to_weibo_img_replace($url)
 {
     global $wb_uploader, $wpdb, $post, $processed;
     if ($processed[$url]) { //hit cache
