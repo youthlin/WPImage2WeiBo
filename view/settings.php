@@ -42,7 +42,7 @@ function wp_image_to_weibo_settings()
                 }
             }
         }
-        if ($_FILES['file']) {
+        if ($_FILES['file']['name']) {
             if ($_FILES["file"]["error"] > 0) {
                 printf('<div class="error below-h2"><p>' . __('Error: %1$s', 'wp-image-to-weibo') . '</p></div>', $_FILES["file"]["error"]);
             } else {
