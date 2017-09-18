@@ -13,6 +13,7 @@ if (!function_exists('add_action')) {
 }
 
 add_filter('the_content', 'wp_image_to_weibo_content_img_replace');
+add_filter('post_thumbnail_html','wp_image_to_weibo_content_img_replace');
 global $wb_uploader, $processed;
 $wb_uploader = \Lin\WeiBoUploader::newInstance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD), get_option(LIN_WB_COOKIE));
 $processed = array();   //cache same image
