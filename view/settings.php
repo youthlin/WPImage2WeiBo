@@ -113,7 +113,24 @@ function wp_image_to_weibo_settings()
             echo '<p>' . $wb_pic_url2 . '</p><br>' . '<img src="' . $wb_pic_url2 . '" style="max-width:100%;;">';
         }
         ?>
+        <div class="donate">
+            <div class="qr-code hidden" id="donate-qr">
+                <img src="https://ws4.sinaimg.cn/mw690/be3d86b9gy1fl6bs4w8e9j20w00w040z.jpg" alt="微信赞赏">
+                <img src="https://ws2.sinaimg.cn/mw690/be3d86b9gy1fl6c7p8s9sj20tz14qmzp.jpg" alt="微信捐助">
+                <img src="https://ws4.sinaimg.cn/mw690/be3d86b9gy1fl6bubl84uj20go0p040l.jpg" alt="支付宝捐助">
+            </div>
+            <button class="button-primary" id="donate-btn">赞助开发者</button>
+        </div>
     </div>
+    <style>#donate-qr img{width: 30%;min-width: 300px;}</style>
+    <script>
+        jQuery(document).ready(function ($) {
+            var $donate = $('#donate-qr');
+            $('#donate-btn').click(function () {
+                $donate.slideToggle();
+            });
+        });
+    </script>
     <?php
 }//wp_image_to_weibo_settings()
 
