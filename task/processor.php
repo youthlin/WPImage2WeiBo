@@ -26,7 +26,7 @@ function wp_image_to_weibo_content_img_replace($content)
         return $content;
     }
     $before = get_num_queries();
-    $pattern = '#(https?:)?//([^\s]*?).(jpg|jpeg|png|gif|bmp)#i';
+    $pattern = '#(https?:)?//([^\s]*?).(\.jpg|\.jpeg|\.png|\.gif|\.bmp)#i';
     $content = preg_replace_callback($pattern, 'wp_image_to_weibo_match_callback', $content);
     return $content . "<!-- [WPImage2WeiBo queries: " . (get_num_queries() - $before) . '] -->';
 }
