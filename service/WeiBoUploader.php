@@ -169,7 +169,7 @@ class WeiBoUploader
     {
         $username = base64_encode($this->username);
         $password = $this->password;
-        $post_data = [
+        $post_data = array(
             'entry' => 'sso',
             'gateway' => '1',
             'from' => 'null',
@@ -186,7 +186,7 @@ class WeiBoUploader
             'domain' => 'sina.com.cn',
             'prelt' => '0',
             'returntype' => 'TEXT',
-        ];
+        );
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, WeiBoUploader::LOGIN_URL);
