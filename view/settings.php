@@ -21,6 +21,7 @@ function wp_image_to_weibo_settings()
         if ($_POST['update_options'] == 'true') {//若提交了表单，则保存变量
             update_option(LIN_WB_USERNAME, $_POST['username']);
             update_option(LIN_WB_PASSWORD, $_POST['password']);
+            update_option(LIN_WB_TYPE, $_POST['type']);
             echo '<div id="message" class="updated below-h2"><p>' . __('Saved', 'wp-image-to-weibo') . '</p></div>';
             $wb_uploader = \Lin\WeiBoUploader::newInstance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD));
             update_option(LIN_WB_COOKIE, $wb_uploader->getCookie());
@@ -85,6 +86,23 @@ function wp_image_to_weibo_settings()
                     <td><input name="password" type="password" id="password" class="regular-text"
                                value="<?php echo get_option(LIN_WB_PASSWORD) ?>"></td>
                 </tr>
+                <tr>
+                    <th scope="row"><label><?php _e('Mode', 'wp-image-to-weibo'); ?></label></th>
+                    <td>
+                        <label><input type="radio" id="type1" name="type" class="regular-text"
+                                      <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_NORMAL) {
+                                          echo ' checked ';
+                                      } ?>value="<?php echo LIN_WB_TYPE_NORMAL; ?>">
+                            <?php _e('Normal (not modify url on database, real-time query.)', 'wp-image-to-weibo'); ?>
+                        </label><br>
+                        <label><input type="radio" id="type2" name="type" class="regular-text"
+                                <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) {
+                                    echo ' checked ';
+                                } ?> value="<?php echo LIN_WB_TYPE_MODIFY; ?>">
+                            <?php _e('Modify (modify url when update post, suitable when picture are much.)', 'wp-image-to-weibo'); ?>
+                        </label>
+                    </td>
+                </tr>
             </table>
             <p><input type="submit" class="button-primary" name="admin_options"
                       value="<?php _e('Update', 'wp-image-to-weibo'); ?>"/></p>
@@ -122,7 +140,10 @@ function wp_image_to_weibo_settings()
             <button class="button-primary" id="donate-btn">赞助开发者</button>
         </div>
     </div>
-    <style>#donate-qr img{width: 30%;min-width: 300px;}</style>
+    <style>#donate-qr img {
+            width: 30%;
+            min-width: 300px;
+        }</style>
     <script>
         jQuery(document).ready(function ($) {
             var $donate = $('#donate-qr');

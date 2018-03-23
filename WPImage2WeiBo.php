@@ -23,6 +23,9 @@ define('LIN_WB_TABLE_NAME', $wpdb->prefix . LIN_WB_TB_PREFIX . 'image');
 define('LIN_WB_USERNAME', 'lin_weibo_username');
 define('LIN_WB_PASSWORD', 'lin_weibo_password');
 define('LIN_WB_COOKIE', 'lin_weibo_cookie');
+define('LIN_WB_TYPE', 'lin_weibo_type');
+define('LIN_WB_TYPE_NORMAL', 'normal');
+define('LIN_WB_TYPE_MODIFY', 'modify');
 
 define('LIN_WB_MAIN_FILE', __FILE__);
 define('LIN_WB_DIR', plugin_dir_path(__FILE__));
