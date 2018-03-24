@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: WPImage2WeiBo
-Plugin URI: https://youthlin.com
+Plugin URI: https://github.com/YouthLin/WPImage2WeiBo
 Description: 提取文章图片链接并上传至微博图床，使用微博外链替换图片链接
-Version: 1.0
+Version: 1.1
 Author: youthlin.chen
 Author URI: https://youthlin.com
 Text Domain: wp-image-to-weibo

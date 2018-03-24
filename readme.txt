@@ -48,6 +48,11 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 == Changelog ==
 
+= 1.1 =
+新增修改文章内容模式。保存文章时直接替换图片链接。
+已知问题：从媒体库插入图片时，插入的内容实际是短标签，处理时将只会处理保存在数据库中的文章内容；
+那么，响应式图片的 `srcset` 或 `sizes` 属性将不再生效，因为这些属性不保存在数据库中，是渲染页面时实时计算的。
+
 = 1.0 =
 First Version.
 
