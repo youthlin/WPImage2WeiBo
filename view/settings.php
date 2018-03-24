@@ -71,6 +71,25 @@ function wp_image_to_weibo_settings()
                 }
             }
         }
+        if ($_POST['reset_url']) {
+            global $wpdb;
+            $table_name = LIN_WB_TABLE_NAME;
+            $rs = $wpdb->get_results("SELECT post_id, src, pid FROM $table_name");
+            if (!$rs || count($rs) == 0) {
+                echo '<div id="message" class="updated below-h2"><p>' . __('No Data.', 'wp-image-to-weibo') . '</p></div>';
+            } else {
+                $map = array();
+                foreach ($rs as $row) {
+                    $inner = $map[$row->post_id];
+                    if (!$inner) {
+                        $inner = array();
+                    }
+                    array_push($inner, $row);
+                    $map[$row->post_id] = $inner;
+                }
+                reset_url($map);
+            }
+        }
         //下面开始界面表单
         ?>
         <form method="POST" action="">
@@ -111,7 +130,7 @@ function wp_image_to_weibo_settings()
         <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) { ?>
             <hr>
             <h2><?php _e('Reset all the WeiBo url to original.', 'wp-image-to-weibo'); ?></h2>
-            <form action="">
+            <form action="" method="post">
                 <input type="submit" class="button" name="reset_url"
                        value="<?php _e('Reset URL', 'wp-image-to-weibo'); ?>">
             </form>
@@ -163,6 +182,25 @@ function wp_image_to_weibo_settings()
     </script>
     <?php
 }//wp_image_to_weibo_settings()
+
+//还原 URL
+function reset_url($post_id_to_row_map)
+{
+    global $wb_uploader;
+    remove_filter("wp_insert_post_data", "process_post_when_save", 99);
+    foreach ($post_id_to_row_map as $post_id => $row_arr) {
+        $post = get_post($post_id);
+        foreach ($row_arr as $row) {
+            $link = $wb_uploader->getImageUrl($row->pid);
+            $post->post_content = str_replace($link, $row->src, $post->post_content);
+        }
+        $ret = wp_update_post($post);
+        if ($ret == 0) {
+            echo '<div id="message" class="updated below-h2"><p>' . __('Error', 'wp-image-to-weibo') . $post->post_title . '</p></div>';
+        }
+    }
+}
+
 
 add_action('admin_menu', 'add_page');
 function add_page()
