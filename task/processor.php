@@ -12,10 +12,10 @@ if (!function_exists('add_action')) {
     exit;
 }
 
+add_filter('post_thumbnail_html', 'wp_image_to_weibo_content_img_replace');//特色图片
 if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_NORMAL) {
     // 每次显示文章时 查询数据库
     add_filter('the_content', 'wp_image_to_weibo_content_img_replace');
-    add_filter('post_thumbnail_html', 'wp_image_to_weibo_content_img_replace');
 } else if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) {
     // 插入数据库前检查图片 直接修改文章内容为替换 url 后的内容
     add_filter('wp_insert_post_data', 'process_post_when_save', 99, 2);
