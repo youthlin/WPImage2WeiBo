@@ -58,7 +58,7 @@ function wp_image_to_weibo_img_replace($url)
     if ($processed[$url]) { //hit cache
         return $processed[$url];
     }
-    if (strpos($url, ".sinaimg.cn/") > 0) {
+    if (stripos($url, ".sinaimg.cn/") > 0) {
         return $url;
     }
 

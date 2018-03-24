@@ -188,6 +188,7 @@ function reset_url($post_id_to_row_map)
 {
     global $wb_uploader;
     remove_filter("wp_insert_post_data", "process_post_when_save", 99);
+    $success = array();
     foreach ($post_id_to_row_map as $post_id => $row_arr) {
         $post = get_post($post_id);
         foreach ($row_arr as $row) {
@@ -196,11 +197,20 @@ function reset_url($post_id_to_row_map)
         }
         $ret = wp_update_post($post);
         if ($ret == 0) {
-            echo '<div id="message" class="updated below-h2"><p>' . sprintf(__('Error: %1$s', 'wp-image-to-weibo'), $post->post_title) . '</p></div>';
+            echo '<div id="error" class="updated below-h2"><p>' . sprintf(__('Error: %1$s', 'wp-image-to-weibo'), $post->post_title) . '</p></div>';
+        } else {
+            array_push($success, $post);
         }
     }
+    if (count($success) > 0) {
+        echo '<div id="message" class="updated below-h2">';
+        printf(__('%1$s post processed:', 'wp-image-to-weibo') . '<hr>' . PHP_EOL, count($success));
+        foreach ($success as $p) {
+            echo '<a href="' . get_permalink($p) . '" target="_blank">' . $p->post_title . '</a><br>';
+        }
+        echo '</div>';
+    }
 }
-
 
 add_action('admin_menu', 'add_page');
 function add_page()

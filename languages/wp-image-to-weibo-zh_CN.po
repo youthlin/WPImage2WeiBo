@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPImage2WeiBo\n"
-"POT-Creation-Date: 2018-03-24 21:37+0800\n"
-"PO-Revision-Date: 2018-03-24 21:37+0800\n"
+"POT-Creation-Date: 2018-03-24 22:08+0800\n"
+"PO-Revision-Date: 2018-03-24 22:08+0800\n"
 "Last-Translator: YouthLin Chen <lin@youthlin.com>\n"
 "Language-Team: https://youthlin.com\n"
 "Language: zh_CN\n"
@@ -32,7 +32,7 @@ msgid "Please set your username and password first."
 msgstr "请先设置您的微博用户名和密码。"
 
 #: view/settings.php:42 view/settings.php:48 view/settings.php:70
-#: view/settings.php:199
+#: view/settings.php:200
 #, php-format
 msgid "Error: %1$s"
 msgstr "错误： %1$s"
@@ -109,11 +109,16 @@ msgstr "图片文件"
 msgid "Upload"
 msgstr "上传"
 
-#: view/settings.php:208
+#: view/settings.php:207
+#, php-format
+msgid "%1$s post processed:"
+msgstr "已处理 %1$s 篇文章："
+
+#: view/settings.php:218
 msgid "WPImage2WeiBo Settings"
 msgstr "WPImage2WeiBo 设置"
 
-#: view/settings.php:208
+#: view/settings.php:218
 msgid "WPImage2WeiBo"
 msgstr "WPImage2WeiBo"
 
