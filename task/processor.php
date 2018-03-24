@@ -12,23 +12,33 @@ if (!function_exists('add_action')) {
     exit;
 }
 
-add_filter('the_content', 'wp_image_to_weibo_content_img_replace');
-add_filter('post_thumbnail_html','wp_image_to_weibo_content_img_replace');
+if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_NORMAL) {
+    // 每次显示文章时 查询数据库
+    add_filter('the_content', 'wp_image_to_weibo_content_img_replace');
+    add_filter('post_thumbnail_html', 'wp_image_to_weibo_content_img_replace');
+} else if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) {
+    // 插入数据库前检查图片 直接修改文章内容为替换 url 后的内容
+    add_filter('wp_insert_post_data', 'process_post_when_save', 99, 2);
+}
+
 global $wb_uploader, $processed;
 $wb_uploader = \Lin\WeiBoUploader::newInstance(get_option(LIN_WB_USERNAME), get_option(LIN_WB_PASSWORD), get_option(LIN_WB_COOKIE));
 $processed = array();   //cache same image
 // 处理文章中的图片链接，替换为微博外链
-function wp_image_to_weibo_content_img_replace($content)
+function wp_image_to_weibo_content_img_replace($content, $show_query_num = true)
 {
     global $wb_uploader;
     if ($wb_uploader == null) {
-        $content .= '<!--' . __('Please set your username and password of WeiBo first.', 'wp-image-to-weibo') . '-->';
+        $content .= PHP_EOL . '<!--' . __('Please set your username and password of WeiBo first.', 'wp-image-to-weibo') . '-->' . PHP_EOL;
         return $content;
     }
     $before = get_num_queries();
     $pattern = '/(https?:)?\/\/([^\s]*?).\.(jpg|jpeg|png|gif|bmp)/i';
     $content = preg_replace_callback($pattern, 'wp_image_to_weibo_match_callback', $content);
-    return $content . "<!-- [WPImage2WeiBo queries: " . (get_num_queries() - $before) . '] -->';
+    if ($show_query_num) {
+        $content .= PHP_EOL . "<!-- [WPImage2WeiBo queries: " . (get_num_queries() - $before) . '] -->' . PHP_EOL;
+    }
+    return $content;
 }
 
 function wp_image_to_weibo_match_callback($matches)
@@ -82,4 +92,11 @@ function wp_image_to_weibo_img_replace($url)
     }
     $processed[$url] = $link;
     return $link;
+}
+
+function process_post_when_save($data, $postarr)
+{
+    $data['post_content'] = wp_image_to_weibo_content_img_replace($data['post_content'], false);
+    $data['post_content_filtered'] = wp_image_to_weibo_content_img_replace($data['post_content_filtered'], false);
+    return $data;
 }
