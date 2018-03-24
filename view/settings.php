@@ -89,13 +89,14 @@ function wp_image_to_weibo_settings()
                 <tr>
                     <th scope="row"><label><?php _e('Mode', 'wp-image-to-weibo'); ?></label></th>
                     <td>
-                        <label><input type="radio" id="type1" name="type" class="regular-text"
+                        <label><input type="radio" id="type1" name="type"
                                       <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_NORMAL) {
                                           echo ' checked ';
                                       } ?>value="<?php echo LIN_WB_TYPE_NORMAL; ?>">
                             <?php _e('Normal (not modify url on database, real-time query.)', 'wp-image-to-weibo'); ?>
-                        </label><br>
-                        <label><input type="radio" id="type2" name="type" class="regular-text"
+                        </label>
+                        <p></p>
+                        <label><input type="radio" id="type2" name="type"
                                 <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) {
                                     echo ' checked ';
                                 } ?> value="<?php echo LIN_WB_TYPE_MODIFY; ?>">
@@ -107,6 +108,14 @@ function wp_image_to_weibo_settings()
             <p><input type="submit" class="button-primary" name="admin_options"
                       value="<?php _e('Update', 'wp-image-to-weibo'); ?>"/></p>
         </form>
+        <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) { ?>
+            <hr>
+            <h2><?php _e('Reset all the WeiBo url to original.', 'wp-image-to-weibo'); ?></h2>
+            <form action="">
+                <input type="submit" class="button" name="reset_url"
+                       value="<?php _e('Reset URL', 'wp-image-to-weibo'); ?>">
+            </form>
+        <?php } ?>
         <hr>
         <h2><?php _e('Test upload to WeiBo', 'wp-image-to-weibo'); ?></h2>
         <form action="" method="POST" enctype="multipart/form-data">
