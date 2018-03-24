@@ -71,14 +71,14 @@ function wp_image_to_weibo_settings()
                 }
             }
         }
-        if ($_POST['reset_url']) {
+        if ($_POST['reset_url']) {//重置功能
             global $wpdb;
             $table_name = LIN_WB_TABLE_NAME;
             $rs = $wpdb->get_results("SELECT post_id, src, pid FROM $table_name");
             if (!$rs || count($rs) == 0) {
                 echo '<div id="message" class="updated below-h2"><p>' . __('No Data.', 'wp-image-to-weibo') . '</p></div>';
             } else {
-                $map = array();
+                $map = array();//按文章 id 分
                 foreach ($rs as $row) {
                     $inner = $map[$row->post_id];
                     if (!$inner) {
@@ -108,14 +108,14 @@ function wp_image_to_weibo_settings()
                 <tr>
                     <th scope="row"><label><?php _e('Mode', 'wp-image-to-weibo'); ?></label></th>
                     <td>
-                        <label><input type="radio" id="type1" name="type"
+                        <label><input type="radio" id="type1" name="type" required
                                       <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_NORMAL) {
                                           echo ' checked ';
                                       } ?>value="<?php echo LIN_WB_TYPE_NORMAL; ?>">
                             <?php _e('Normal (not modify url on database, real-time query.)', 'wp-image-to-weibo'); ?>
                         </label>
                         <p></p>
-                        <label><input type="radio" id="type2" name="type"
+                        <label><input type="radio" id="type2" name="type" required
                                 <?php if (get_option(LIN_WB_TYPE) == LIN_WB_TYPE_MODIFY) {
                                     echo ' checked ';
                                 } ?> value="<?php echo LIN_WB_TYPE_MODIFY; ?>">
@@ -196,7 +196,7 @@ function reset_url($post_id_to_row_map)
         }
         $ret = wp_update_post($post);
         if ($ret == 0) {
-            echo '<div id="message" class="updated below-h2"><p>' . __('Error', 'wp-image-to-weibo') . $post->post_title . '</p></div>';
+            echo '<div id="message" class="updated below-h2"><p>' . sprintf(__('Error: %1$s', 'wp-image-to-weibo'), $post->post_title) . '</p></div>';
         }
     }
 }
