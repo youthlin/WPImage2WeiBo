@@ -10,6 +10,11 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Search image link automatically on post content and replace them of WeiBo link.
 
+== NOTICE 注意 ==
+OUT OF DATE.
+新浪微博好像不能当做图床用了，这个插件没必要看了……
+
+
 == Description ==
 
 安装该插件后，将会在数据库中新建一张表，不过您不必关心这些细节，只需在设置里找到本插件设置页面，填入微博账号、密码信息即可。
